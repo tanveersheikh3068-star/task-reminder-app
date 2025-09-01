@@ -4,7 +4,6 @@ from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import time
 
 # ------------------ Email Sender Function ------------------
 def send_email(subject, body, to_email):
@@ -41,7 +40,9 @@ with st.form("task_form"):
     task_name = st.text_input("Task Ka Naam (Chota aur clear likhen):")
     task_desc = st.text_area("Task Ki Details (Kya karna hai?):")
     task_time = st.datetime_input("Kab remind karna hai? (Date aur Time select karen):", min_value=datetime.now())
-    submitted = st.form_submit_button("Add Task")
+    
+    # YEH LINE THIK KARDI - Submit button ab hai
+    submitted = st.form_submit_button("Add Task ✅")
 
     if submitted:
         if task_name and task_desc:
@@ -83,7 +84,7 @@ except FileNotFoundError:
     st.info("Abhi tak koi task file nahi bani. Pehla task add karen.")
 
 # ------------------ Check for Notifications (Ye background mein chalta rahega) ------------------
-if st.button("Check for Notifications Now"):
+if st.button("Check for Notifications Now 🔍"):
     try:
         df = pd.read_csv("tasks.csv")
         if not df.empty:
@@ -110,6 +111,7 @@ Yasir Bhai ka Task Reminder System.
 
             # CSV file ko updated status ke saath save karo
             df.to_csv("tasks.csv", index=False)
+            st.rerun() # Page ko refresh karne ke liye
         else:
             st.info("No tasks to notify.")
     except FileNotFoundError:
