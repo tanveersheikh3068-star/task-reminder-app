@@ -1,24 +1,21 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, time, date
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # ------------------ Email Sender Function ------------------
 def send_email(subject, body, to_email):
-    # Aap ka Gmail address aur App Password yahaan aayega
     gmail_address = "yasirali22444422@gmail.com"
-    gmail_app_password = st.secrets["GMAIL_PASSWORD"]  # Ye Streamlit ke Secrets se aayega
+    gmail_app_password = st.secrets["GMAIL_PASSWORD"]
 
-    # Email banate hain
     msg = MIMEMultipart()
     msg['From'] = gmail_address
     msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
 
-    # Server se connect karke email bhejna
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
@@ -39,23 +36,26 @@ st.write("Asslam-o-Alaikum! Yahaan apne tasks add karen aur time par notificatio
 with st.form("task_form"):
     task_name = st.text_input("Task Ka Naam (Chota aur clear likhen):")
     task_desc = st.text_area("Task Ki Details (Kya karna hai?):")
-    task_time = st.datetime_input("Kab remind karna hai? (Date aur Time select karen):", min_value=datetime.now())
     
-    # YEH LINE THIK KARDI - Submit button ab hai
+    # Date and Time input alag-alag
+    task_date = st.date_input("Kab remind karna hai? (Date select karen):", min_value=date.today())
+    task_time = st.time_input("Time select karen:", value=time(9, 0))  # Default 9:00 AM
+    
+    # Combine date and time
+    task_datetime = datetime.combine(task_date, task_time)
+    
     submitted = st.form_submit_button("Add Task ✅")
 
     if submitted:
-        if task_name and task_desc:
-            # Task ko DataFrame mein add karna
+        if task_name:
             new_task = {
                 "Task Name": task_name,
                 "Description": task_desc,
-                "Time": task_time,
+                "Time": task_datetime,
                 "Created At": datetime.now(),
-                "Notified": False  # Abhi tak notify nahi hua hai
+                "Notified": False
             }
 
-            # CSV file mein save karna
             try:
                 df_existing = pd.read_csv("tasks.csv")
             except FileNotFoundError:
@@ -70,7 +70,7 @@ with st.form("task_form"):
         else:
             st.warning("Please task ka naam zaroor likhen.")
 
-# ------------------ Check Pending Tasks (Scheduler) ------------------
+# ------------------ Display Pending Tasks ------------------
 st.header("Pending Tasks")
 try:
     df = pd.read_csv("tasks.csv")
@@ -83,7 +83,7 @@ try:
 except FileNotFoundError:
     st.info("Abhi tak koi task file nahi bani. Pehla task add karen.")
 
-# ------------------ Check for Notifications (Ye background mein chalta rahega) ------------------
+# ------------------ Manual Check for Notifications ------------------
 if st.button("Check for Notifications Now 🔍"):
     try:
         df = pd.read_csv("tasks.csv")
@@ -105,15 +105,12 @@ Kya aap ne ye task complete kar liya hai?
 Yasir Bhai ka Task Reminder System.
 """
                     send_email(subject, body, "yasirali22444422@gmail.com")
-                    # Notified status ko update karo
                     df.at[index, 'Notified'] = True
                     st.write(f"Notification sent for: {row['Task Name']}")
 
-            # CSV file ko updated status ke saath save karo
             df.to_csv("tasks.csv", index=False)
-            st.rerun() # Page ko refresh karne ke liye
+            st.rerun()
         else:
             st.info("No tasks to notify.")
     except FileNotFoundError:
         st.info("No task file found.")
-
