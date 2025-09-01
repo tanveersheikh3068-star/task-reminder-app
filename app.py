@@ -7,21 +7,22 @@ from email.mime.multipart import MIMEMultipart
 
 # ------------------ Email Sender Function ------------------
 def send_email(subject, body, to_email):
-    gmail_address = "yasirali22444422@gmail.com"
-    gmail_app_password = st.secrets["GMAIL_PASSWORD"]
+    # Ethereal Email Details (FREE)
+    ethereal_address = st.secrets["EMAIL_ADDRESS"]
+    ethereal_password = st.secrets["EMAIL_PASSWORD"]
 
     msg = MIMEMultipart()
-    msg['From'] = gmail_address
+    msg['From'] = ethereal_address
     msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server = smtplib.SMTP('smtp.ethereal.email', 587)
         server.starttls()
-        server.login(gmail_address, gmail_app_password)
+        server.login(ethereal_address, ethereal_password)
         text = msg.as_string()
-        server.sendmail(gmail_address, to_email, text)
+        server.sendmail(ethereal_address, to_email, text)
         server.quit()
         st.success("Notification sent successfully!")
     except Exception as e:
@@ -39,7 +40,7 @@ with st.form("task_form"):
     
     # Date and Time input alag-alag
     task_date = st.date_input("Kab remind karna hai? (Date select karen):", min_value=date.today())
-    task_time = st.time_input("Time select karen:", value=time(9, 0))  # Default 9:00 AM
+    task_time = st.time_input("Time select karen:", value=time(9, 0))
     
     # Combine date and time
     task_datetime = datetime.combine(task_date, task_time)
