@@ -5,26 +5,26 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# ------------------ Email Sender Function ------------------
+# ------------------ Email Sender Function (GMAIL) ------------------
 def send_email(subject, body, to_email):
-    # Ethereal Email Details (FREE)
-    ethereal_address = st.secrets["EMAIL_ADDRESS"]
-    ethereal_password = st.secrets["EMAIL_PASSWORD"]
+    # Gmail Details from Secrets
+    gmail_address = st.secrets["GMAIL_ADDRESS"]
+    gmail_app_password = st.secrets["GMAIL_PASSWORD"]  # Your App Password
 
     msg = MIMEMultipart()
-    msg['From'] = ethereal_address
+    msg['From'] = gmail_address
     msg['To'] = to_email
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
 
     try:
-        server = smtplib.SMTP('smtp.ethereal.email', 587)
+        server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login(ethereal_address, ethereal_password)
+        server.login(gmail_address, gmail_app_password)
         text = msg.as_string()
-        server.sendmail(ethereal_address, to_email, text)
+        server.sendmail(gmail_address, to_email, text)
         server.quit()
-        st.success("✅ Notification sent successfully! Aap ko email aa gayi hogi.")
+        st.success("✅ Notification sent successfully! Check your email.")
     except Exception as e:
         st.error(f"Error sending email: {e}")
 
